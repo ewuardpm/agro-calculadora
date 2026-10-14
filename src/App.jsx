@@ -112,27 +112,30 @@ export default function AgroDeliveryApp() {
   const porcentajeReal = ingresoBruto > 0 ? (gananciaNeta / ingresoBruto) * 100 : (gananciaNeta < 0 ? -100 : 0);
 
   // ==========================================
-  // NUEVA LÓGICA: ENVIAR A WHATSAPP (SELECTOR LIBRE)
+  // NUEVA LÓGICA: ENVIAR A WHATSAPP (CORREGIDA)
   // ==========================================
   const enviarPorWhatsApp = () => {
-    // Mapeamos dinámicamente los tubérculos para que el mensaje respete el orden
+    // 1. Armar la lista de tubérculos con formato claro usando salto de línea \n
     const listaTuberculos = tuberculos.map((t, idx) => {
       let etiqueta = "";
       if (idx === 0) etiqueta = "(Más económico - 50%)";
       if (idx === 1) etiqueta = "(Medio - 30%)";
       if (idx === 2) etiqueta = "(Costoso - 20%)";
       return `*${t.nombre}:* ${t.kilos} Kg ${etiqueta}`;
-    }).join('%0A');
+    }).join('\n');
 
-    // Construcción del texto del mensaje
-    const textoMensaje = `*Pedido de Compras - Inversiones Agro Delivery P&H C.A.*%0A%0A` +
-                         `Cantidades exactas a comprar hoy:%0A%0A` +
-                         `*Auyama:* ${kAuyama} Kg%0A` +
-                         `*Celery:* ${kCelery} Kg (Máx 5%)%0A` +
+    // 2. Construir el mensaje completo
+    const textoMensaje = `*Pedido de Compras - Inversiones Agro Delivery P&H C.A.*\n\n` +
+                         `Cantidades exactas a comprar hoy:\n\n` +
+                         `*Auyama:* ${kAuyama} Kg\n` +
+                         `*Celery:* ${kCelery} Kg (Máx 5%)\n` +
                          `${listaTuberculos}`;
 
-    // Abre WhatsApp preguntando a qué contacto/grupo enviarlo
-    window.open(`https://api.whatsapp.com/send?text=${textoMensaje}`, '_blank');
+    // 3. Codificar el mensaje para que el navegador no corte el texto
+    const mensajeCodificado = encodeURIComponent(textoMensaje);
+
+    // 4. Abrir WhatsApp con el texto seguro
+    window.open(`https://api.whatsapp.com/send?text=${mensajeCodificado}`, '_blank');
   };
 
   // Escudo Antitraducción: div con translate="no" y clase notranslate
