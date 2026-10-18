@@ -112,23 +112,19 @@ export default function AgroDeliveryApp() {
   const porcentajeReal = ingresoBruto > 0 ? (gananciaNeta / ingresoBruto) * 100 : (gananciaNeta < 0 ? -100 : 0);
 
   // ==========================================
-  // NUEVA LÓGICA: ENVIAR A WHATSAPP (CORREGIDA)
+  // NUEVA LÓGICA: ENVIAR A WHATSAPP (LISTA LIMPIA)
   // ==========================================
   const enviarPorWhatsApp = () => {
-    // 1. Armar la lista de tubérculos con formato claro usando salto de línea \n
-    const listaTuberculos = tuberculos.map((t, idx) => {
-      let etiqueta = "";
-      if (idx === 0) etiqueta = "(Más económico - 50%)";
-      if (idx === 1) etiqueta = "(Medio - 30%)";
-      if (idx === 2) etiqueta = "(Costoso - 20%)";
-      return `*${t.nombre}:* ${t.kilos} Kg ${etiqueta}`;
+    // 1. Armar la lista de tubérculos limpia (solo nombre y kilos)
+    const listaTuberculos = tuberculos.map((t) => {
+      return `*${t.nombre}:* ${t.kilos} Kg`;
     }).join('\n');
 
-    // 2. Construir el mensaje completo
+    // 2. Construir el mensaje completo limpio
     const textoMensaje = `*Pedido de Compras - Inversiones Agro Delivery P&H C.A.*\n\n` +
                          `Cantidades exactas a comprar hoy:\n\n` +
                          `*Auyama:* ${kAuyama} Kg\n` +
-                         `*Celery:* ${kCelery} Kg (Máx 5%)\n` +
+                         `*Celery:* ${kCelery} Kg\n` +
                          `${listaTuberculos}`;
 
     // 3. Codificar el mensaje para que el navegador no corte el texto
