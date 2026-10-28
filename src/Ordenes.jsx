@@ -9,6 +9,8 @@ const SUCURSALES = [
 ];
 // Palabras que se eliminan automáticamente de los nombres de producto
 const PALABRAS_QUITAR = ['MICROGREEN', 'ARAUAK'];
+// Dirección del Worker que lee las imágenes
+const API_URL = 'https://agro-calculadora.ewuardp.workers.dev/api/extract';
 // ==============================================================
 
 const leer = (k, def) => {
@@ -80,13 +82,13 @@ export default function Ordenes() {
     try {
       const { dataUrl, base64 } = await reducirImagen(file);
       setPreview(dataUrl);
-      const r = await fetch('/api/extract', {
+      const r = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Pin': pin },
         body: JSON.stringify({ image: base64, mime: 'image/jpeg' }),
       });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(data.error || 'Error al leer la imagen');
+      if (!r.ok) throw new Error(data.error || `Error al leer la imagen (código ${r.status})`);
       setOrden(data.orden || '');
       setItems(
         (data.items || [])
@@ -94,7 +96,7 @@ export default function Ordenes() {
           .filter((i) => i.nombre)
       );
     } catch (e) {
-      setError(e.message);
+      setError(e instanceof TypeError ? 'No se pudo conectar con el servidor. Revisa tu internet.' : e.message);
     } finally {
       setCargando(false);
     }
