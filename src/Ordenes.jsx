@@ -66,6 +66,7 @@ const linkWhatsApp = (sucursal, mensaje) => {
 
 export default function Ordenes() {
   const [pin, setPin] = useState(() => leer('agro_pin', ''));
+  const [verPin, setVerPin] = useState(false);
   const [preview, setPreview] = useState(null);
   const [orden, setOrden] = useState('');
   const [items, setItems] = useState([]);
@@ -84,7 +85,7 @@ export default function Ordenes() {
       setPreview(dataUrl);
       const r = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Pin': pin },
+        headers: { 'Content-Type': 'application/json', 'X-Pin': pin.trim() },
         body: JSON.stringify({ image: base64, mime: 'image/jpeg' }),
       });
       const data = await r.json().catch(() => ({}));
@@ -162,12 +163,15 @@ export default function Ordenes() {
         <div className="mt-3 flex items-center gap-2">
           <label className="text-[11px] font-semibold text-gray-600">PIN</label>
           <input
-            type="password"
+            type={verPin ? 'text' : 'password'}
             value={pin}
             onChange={(e) => { setPin(e.target.value); guardar('agro_pin', e.target.value); }}
             className="flex-1 border rounded p-1 text-sm"
             placeholder="PIN de acceso"
           />
+          <button type="button" onClick={() => setVerPin((v) => !v)} className="text-lg px-1" aria-label="Mostrar u ocultar PIN">
+            {verPin ? '🙈' : '👁️'}
+          </button>
         </div>
         {error && <p className="mt-3 text-sm font-semibold text-red-600">{error}</p>}
       </section>
