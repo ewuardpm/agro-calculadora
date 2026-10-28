@@ -37,6 +37,19 @@ const json = (obj, status = 200) =>
     headers: { 'Content-Type': 'application/json' },
   });
 
+// Sitios desde los que se permite llamar a este Worker
+const ORIGENES = ['https://agro-delivery.com', 'https://www.agro-delivery.com'];
+const cabecerasCors = (request) => {
+  const o = request.headers.get('Origin');
+  if (!ORIGENES.includes(o)) return {};
+  return {
+    'Access-Control-Allow-Origin': o,
+    'Access-Control-Allow-Headers': 'Content-Type, X-Pin',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    Vary: 'Origin',
+  };
+};
+
 // Comparación de PIN en tiempo constante
 const igual = (a, b) => {
   if (a.length !== b.length) return false;
@@ -103,7 +116,14 @@ async function extraer(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname === '/api/extract') return extraer(request, env);
+    if (url.pathname === '/api/extract') {
+      const h = cabecerasCors(request);
+      if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
+      const res = await extraer(request, env);
+      const out = new Response(res.body, res);
+      for (const [k, v] of Object.entries(h)) out.headers.set(k, v);
+      return out;
+    }
     return env.ASSETS.fetch(request);
   },
 };
