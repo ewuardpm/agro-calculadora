@@ -61,8 +61,11 @@ const igual = (a, b) => {
 async function extraer(request, env) {
   if (request.method !== 'POST') return json({ error: 'Método no permitido' }, 405);
 
-  const pin = request.headers.get('X-Pin') || '';
-  if (!env.ACCESS_PIN || !igual(pin, env.ACCESS_PIN)) {
+  const pin = (request.headers.get('X-Pin') || '').trim();
+  if (!env.ACCESS_PIN) {
+    return json({ error: 'El servidor no tiene el secreto ACCESS_PIN configurado' }, 500);
+  }
+  if (!igual(pin, String(env.ACCESS_PIN).trim())) {
     return json({ error: 'PIN incorrecto' }, 401);
   }
   if (!env.GEMINI_API_KEY) return json({ error: 'Falta configurar GEMINI_API_KEY' }, 500);
