@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { registrarOrden } from './pedidoSemanal.js';
 
 // ================= CONFIGURACIÓN (edita aquí) =================
 // Las sucursales se agregan y borran desde la app (sección 🏬 Sucursales)
@@ -152,6 +153,17 @@ export default function Ordenes() {
     window.open(linkWhatsApp(sucursales, sucursal, construirMensaje(d)), '_blank');
   };
 
+  const guardarEnPedido = async () => {
+    try {
+      const d = datosActuales();
+      const { modificada } = await registrarOrden(d);
+      nueva();
+      setAviso(modificada ? 'Orden actualizada en el pedido semanal (queda como modificada si ya se había enviado) ✔' : 'Guardada en el pedido semanal ✔');
+    } catch {
+      setAviso('No se pudo guardar en el pedido semanal');
+    }
+  };
+
   const copiar = async () => {
     try {
       await navigator.clipboard.writeText(construirMensaje(datosActuales()));
@@ -182,6 +194,13 @@ export default function Ordenes() {
           {cargando ? 'Leyendo orden…' : '📷 Subir foto o captura'}
         </button>
         <p className="text-[11px] text-gray-500 mt-2 text-center">En PC también puedes pegar con Ctrl+V</p>
+        <button
+          onClick={() => { setError(''); setAviso(''); setPreview(null); setOrden(''); setItems([{ nombre: '', cantidad: '', unidad: '' }]); }}
+          disabled={cargando}
+          className="w-full mt-2 border border-[#005c29] text-[#005c29] font-bold py-2 rounded-lg disabled:opacity-50"
+        >
+          ✍️ Cargar manualmente
+        </button>
         <div className="mt-3 flex items-center gap-2">
           <label className="text-[11px] font-semibold text-gray-600">PIN</label>
           <input
@@ -248,6 +267,10 @@ export default function Ordenes() {
         )}
       </section>
 
+      {aviso && items.length === 0 && (
+        <p className="text-center text-sm font-semibold text-[#005c29]">{aviso}</p>
+      )}
+
       {preview && (
         <img src={preview} alt="Orden" className="w-full max-h-48 object-contain rounded-lg border bg-gray-50" />
       )}
@@ -256,7 +279,7 @@ export default function Ordenes() {
         <section className="space-y-3">
           <h2 className="text-sm font-bold text-gray-700 border-b pb-2">2. Revisa y corrige</h2>
           <div>
-            <label className="block text-xs font-semibold text-gray-600">N° de orden</label>
+            <label className="block text-xs font-semibold text-gray-600">N° de orden (el que aparece en la orden física)</label>
             <input value={orden} onChange={(e) => setOrden(e.target.value)} className="w-full border rounded p-2 font-bold" />
           </div>
           {items.map((it, idx) => (
@@ -304,6 +327,9 @@ export default function Ordenes() {
               Copiar texto
             </button>
           </div>
+          <button onClick={guardarEnPedido} disabled={!listo} className="w-full bg-[#005c29] text-white font-bold py-3 rounded-lg disabled:opacity-40">
+            📋 Guardar en pedido semanal
+          </button>
           {aviso && <p className="text-center text-sm font-semibold text-[#005c29]">{aviso}</p>}
           <button onClick={nueva} className="w-full text-sm text-gray-500 underline">Nueva orden</button>
         </section>

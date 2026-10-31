@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Ordenes from './Ordenes.jsx';
+import Pedido from './Pedido.jsx';
 
 export default function AgroDeliveryApp() {
   const [modoActivo, setModoActivo] = useState('compras');
@@ -142,11 +143,18 @@ export default function AgroDeliveryApp() {
           >
             📲 Órdenes
           </button>
+          <button 
+            onClick={() => setModoActivo('pedido')}
+            className={`flex-1 py-3 font-bold text-sm transition-colors ${modoActivo === 'pedido' ? 'bg-white text-[#005c29] border-b-4 border-[#005c29]' : 'bg-[#e9e4d8] text-gray-600'}`}
+          >
+            📋 Pedido
+          </button>
         </div>
 
         <div className="p-4">
           
           {modoActivo === 'ordenes' && <Ordenes />}
+          {modoActivo === 'pedido' && <Pedido />}
 
           {modoActivo === 'empaquetado' && (
             <div className="space-y-6">
